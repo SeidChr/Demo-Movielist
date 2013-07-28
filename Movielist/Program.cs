@@ -27,7 +27,8 @@ namespace Movielist
             do
             {
                 Console.WriteLine("Please Chose:");
-                Console.WriteLine("1.: Read Movies Recursive.");
+                Console.WriteLine(" 1.: Read Movies Recursive.");
+                Console.WriteLine("ESC: Exit.");
                 pressedKeyInfo = Console.ReadKey();
                 switch (pressedKeyInfo.Key)
                 {
@@ -67,15 +68,24 @@ namespace Movielist
             } 
             while (!directory.Exists);
 
-            ReadMoviesRecursive(directory);
+            ReadMovies(directory);
         }
 
         /// <summary>
-        /// Read all movies from a given directory.
+        /// Read all movies from a given directory and its subdirectories.
         /// </summary>
         /// <param name="directory">The source directory.</param>
-        public static void ReadMoviesRecursive(DirectoryInfo directory)
-        { 
+        public static void ReadMovies(params DirectoryInfo[] directories)
+        {
+            foreach (var directory in directories) 
+            {
+                ReadMovies(directory.EnumerateDirectories().ToArray());
+                var files = directory.EnumerateFiles();
+                foreach (var file in files)
+                {
+                    Console.WriteLine(file.FullName);
+                }
+            }
         }
     }
 }
