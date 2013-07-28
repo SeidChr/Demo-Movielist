@@ -34,6 +34,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -41,7 +42,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contracts\IGetDriveLabel.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="Activities\GetVolumeLabel.cs" />
+    <Compile Include="Contracts\IMovie.cs" />
+    <Compile Include="Model\Movie.cs" />
+    <Compile Include="MovieCollection.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
