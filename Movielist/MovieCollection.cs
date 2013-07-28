@@ -14,7 +14,7 @@ namespace Movielist
 
         public void Add(FileInfo file)
         {
-            file.
+            
         }
 
         public IEnumerator<Movie> GetEnumerator()
