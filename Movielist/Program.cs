@@ -80,12 +80,29 @@ namespace Movielist
             foreach (var directory in directories) 
             {
                 ReadMovies(directory.EnumerateDirectories().ToArray());
-                var files = directory.EnumerateFiles();
+                var files = directory.EnumerateFiles().Where(f=>IsMovieFile(f));
                 foreach (var file in files)
                 {
                     Console.WriteLine(file.FullName);
                 }
             }
+        }
+
+        private static bool IsMovieFile(FileInfo file)
+        {
+            var result = false;
+            var extension = file.Extension;
+            if (extension.StartsWith("."))
+            {
+                extension = extension.Substring(1);
+            }
+
+            if (Config.Endings.Contains(extension))
+            {
+                result = true;
+            }
+
+            return result;
         }
     }
 }
