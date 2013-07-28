@@ -54,7 +54,20 @@ namespace Movielist
         /// </summary>
         public static void MenuReadMoviesRecursive()
         {
- 
+            DirectoryInfo directory;
+            do
+            {
+                Console.Write("Path: ");
+                var path = Console.ReadLine();
+                directory = new DirectoryInfo(path);
+                if (!directory.Exists)
+                {
+                    Console.WriteLine("Given Path does not exist.");
+                }
+            } 
+            while (!directory.Exists);
+
+            ReadMoviesRecursive(directory);
         }
 
         /// <summary>
