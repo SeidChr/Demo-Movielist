@@ -88,6 +88,11 @@ namespace Movielist
             }
         }
 
+        /// <summary>
+        /// Checks whether a given file is a movie file or not.
+        /// </summary>
+        /// <param name="file">File to validate.</param>
+        /// <returns>True if the file is an movie file. false otherwise.</returns>
         private static bool IsMovieFile(FileInfo file)
         {
             var result = false;
