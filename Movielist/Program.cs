@@ -43,7 +43,7 @@ namespace Movielist
                         break;
 
                     default:
-                        Console.WriteLine("Eingabe nicht erkannt. Bitte erneut versuchen.");
+                        Console.WriteLine("Option not found. Please try again.");
                         break;
                 }
             }
