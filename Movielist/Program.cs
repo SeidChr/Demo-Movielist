@@ -56,7 +56,7 @@ namespace Movielist
         public static void MenuReadMoviesRecursive()
         {
             DirectoryInfo directory;
-            while(true)
+            while (true)
             {
                 Console.Write("Path: ");
                 var path = Console.ReadLine();
@@ -75,7 +75,7 @@ namespace Movielist
                     Console.WriteLine("Invalid Path specified.");
                     continue;
                 }
-                
+
                 if (!directory.Exists)
                 {
                     Console.WriteLine("Given Path does not exist.");
@@ -83,7 +83,7 @@ namespace Movielist
                 }
 
                 break;
-            } 
+            }
 
             ReadMovies(directory);
         }
@@ -92,16 +92,25 @@ namespace Movielist
         /// Read all movies from a given directory and its subdirectories.
         /// </summary>
         /// <param name="directory">The source directory.</param>
-        public static void ReadMovies(params DirectoryInfo[] directories)
+        public static void ReadMovies(DirectoryInfo directory)
         {
-            foreach (var directory in directories) 
+
+            foreach (var subdir in directory.EnumerateDirectories())
             {
-                ReadMovies(directory.EnumerateDirectories().ToArray());
-                var files = directory.EnumerateFiles().Where(f=>IsMovieFile(f));
-                foreach (var file in files)
+                try
                 {
-                    Console.WriteLine(file.FullName);
+                    ReadMovies(subdir);
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error reading directory " + subdir.FullName + ": " + ex.Message);
+                }
+            }
+
+            var files = directory.EnumerateFiles().Where(f => IsMovieFile(f));
+            foreach (var file in files)
+            {
+                Console.WriteLine(file.FullName);
             }
         }
 

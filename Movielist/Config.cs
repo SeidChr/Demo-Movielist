@@ -14,7 +14,13 @@ namespace Movielist
         static Config()
         {
             var configDocument = XDocument.Load("Config.xml");
-            endings = configDocument.Element("Extensions").Elements("Extension").Select(e => e.Value);
+            // configDocument.Root.Element("Config").Element("Extensions").Elements()
+            endings = configDocument
+                .Root
+                .Element("Config")
+                .Element("Extensions")
+                .Elements("Extension")
+                .Select(e => e.Value);
         }
 
         public static IEnumerable<string> Endings
