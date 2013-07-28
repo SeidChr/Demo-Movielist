@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Movielist>
   <Config>
-    <FileEndings>
-      <Ending>avi</Ending>
-      <Ending>mpg</Ending>
-      <Ending>mpeg</Ending>
-      <Ending>mkv</Ending>
-      <Ending>mp4</Ending>
-    </FileEndings>
+    <Extensions>
+      <Extension>avi</Extension>
+      <Extension>mpg</Extension>
+      <Extension>mpeg</Extension>
+      <Extension>mkv</Extension>
+      <Extension>mp4</Extension>
+    </Extensions>
     <Tags>
       <Tag id="DE">Deutsch</Tag>
       <Tag id="EN">Englisch</Tag>
