@@ -26,7 +26,7 @@ namespace Movielist
             // remove directory char and use location prefix instead
             string key = location + file.FullName.Substring(1);
 
-            movieStore.Add(key, movie);
+            movieStore[key] = movie;
         }
 
         public IEnumerator<Movie> GetEnumerator()

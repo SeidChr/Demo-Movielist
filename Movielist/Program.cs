@@ -7,12 +7,13 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using XEO.Core.Text;
 
 namespace Movielist
 {
     static class Program
     {
-        static List<string> movieList = new List<string>();
+        static MovieCollection collection = new MovieCollection();
 
         /// <summary>
         /// Main Applicatin Entry Point
@@ -78,15 +79,21 @@ namespace Movielist
 
         private static void PrintMoviesToScreen()
         {
-            var movies = movieList.Select(moviePath => new FileInfo(moviePath)).OrderBy(movieFile => movieFile.Name);
+            var maxNameLength = collection.Select(movie => movie.Name.Length).Max() + 1;
+            var movies = collection.OrderBy(movie => movie.Name);
 
             var listFile = new FileInfo(@"movielist.txt");
             using (var writer = listFile.CreateText())
             {
                 foreach (var movie in movies)
                 {
-                    writer.WriteLine(movie.Name);
-                    Console.WriteLine(movie.Name);
+                    var output = movie.Name 
+                        + " ".Repeat(maxNameLength - movie.Name.Length) 
+                        + " @ "+ movie.Location + " : " 
+                        + string.Join(", ", movie.Tags.OrderBy(t=>t));
+
+                    writer.WriteLine(output);
+                    Console.WriteLine(output);
                 }
             }
         }
@@ -100,7 +107,7 @@ namespace Movielist
             var drive = directory.Root;
             var driveId = IdentifyDirectory(drive);
 
-            ReadMovies(directory);
+            ReadMovies(directory, driveId);
         }
 
         private static string IdentifyDirectoryInteractive(DirectoryInfo directory)
@@ -137,7 +144,7 @@ namespace Movielist
             if (!configFile.Exists)
             {
                 var identifier = IdentifyDirectoryInteractive(directory);
-                var document =
+                var elements =
                     new XElement(
                         "MovieList",
                         new XElement(
@@ -149,9 +156,16 @@ namespace Movielist
                         )
                     );
 
+                var document = new XDocument(elements);
+                
+
                 using (var writer = configFile.CreateText())
                 {
-                    document.WriteTo(XmlWriter.Create(writer));
+                    using (var xmlWriter = XmlWriter.Create(writer))
+                    {
+                        document.WriteTo(xmlWriter);
+                    }
+                    
                 }
 
                 result = identifier;
@@ -204,14 +218,14 @@ namespace Movielist
         /// Read all movies from a given directory and its subdirectories.
         /// </summary>
         /// <param name="directory">The source directory.</param>
-        public static void ReadMovies(DirectoryInfo directory)
+        public static void ReadMovies(DirectoryInfo directory, string location)
         {
 
             foreach (var subdir in directory.EnumerateDirectories())
             {
                 try
                 {
-                    ReadMovies(subdir);
+                    ReadMovies(subdir, location);
                 }
                 catch (Exception ex)
                 {
@@ -222,19 +236,11 @@ namespace Movielist
             var files = directory.EnumerateFiles().Where(f => IsMovieFile(f));
             foreach (var file in files)
             {
-                if (!movieList.Contains(file.FullName))
+                if (file.Name.Contains('[') && file.Name.Contains(']'))
                 {
-                    if (file.Name.Contains('[') && file.Name.Contains(']'))
-                    {
-                        movieList.Add(file.FullName);
-                    }
+                    collection.Add(file, location);
+                }
 
-                    //Console.WriteLine("Added: " + file.FullName);
-                }
-                else
-                {
-                    //Console.WriteLine("Existing: " + file.FullName);
-                }
             }
         }
 
