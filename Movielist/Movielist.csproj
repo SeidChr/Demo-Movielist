@@ -43,7 +43,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ContainerHost.cs" />
     <Compile Include="Contracts\IGetDriveLabel.cs" />
     <Compile Include="Config.cs" />
     <Compile Include="Activities\GetVolumeLabel.cs" />

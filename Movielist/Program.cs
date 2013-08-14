@@ -5,11 +5,15 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace Movielist
 {
-    class Program
+    static class Program
     {
+        static List<string> movieList = new List<string>();
+
         /// <summary>
         /// Main Applicatin Entry Point
         /// </summary>
@@ -19,25 +23,18 @@ namespace Movielist
             Menue();
         }
 
-        private static BuildContainer()
+        /// <summary>
+        /// 
+        /// </summary>
+        private static void BuildContainer()
         {
-               //An aggregate catalog that combines multiple catalogs
-    var catalog = new AggregateCatalog();
-    //Adds all the parts found in the same assembly as the Program class
-    catalog.Catalogs.Add(new AssemblyCatalog(typeof(Program).Assembly));
+            //An aggregate catalog that combines multiple catalogs
+            var catalog = new AggregateCatalog();
+            //Adds all the parts found in the same assembly as the Program class
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(Program).Assembly));
 
-    //Create the CompositionContainer with the parts in the catalog
-    _container = new CompositionContainer(catalog);
-
-    //Fill the imports of this object
-    try
-    {
-        this._container.ComposeParts(this);
-    }
-    catch (CompositionException compositionException)
-    {
-        Console.WriteLine(compositionException.ToString());
-   }
+            //Create the CompositionContainer with the parts in the catalog
+            var container = new CompositionContainer(catalog);
         }
 
         /// <summary>
@@ -50,6 +47,7 @@ namespace Movielist
             {
                 Console.WriteLine("Please Chose:");
                 Console.WriteLine(" 1.: Read Movies Recursive.");
+                Console.WriteLine(" 2.: Print all Movies to Screen.");
                 Console.WriteLine("ESC: Exit.");
                 pressedKeyInfo = Console.ReadKey();
                 switch (pressedKeyInfo.Key)
@@ -61,7 +59,13 @@ namespace Movielist
                     case ConsoleKey.NumPad1:
                     case ConsoleKey.D1:
                         Console.WriteLine("Read Movies Recursive:");
-                        MenuReadMoviesRecursive();
+                        ReadMoviesSequence();
+                        break;
+
+                    case ConsoleKey.NumPad2:
+                    case ConsoleKey.D2:
+                        Console.WriteLine("Print all Movies to Screen:");
+                        PrintMoviesToScreen();
                         break;
 
                     default:
@@ -72,12 +76,100 @@ namespace Movielist
             while (pressedKeyInfo.Key != ConsoleKey.Escape);
         }
 
+        private static void PrintMoviesToScreen()
+        {
+            var movies = movieList.Select(moviePath => new FileInfo(moviePath)).OrderBy(movieFile => movieFile.Name);
+
+            var listFile = new FileInfo(@"c:\movielist.txt");
+            var listFileStream = listFile.OpenWrite();
+            var writer = new StreamWriter(listFileStream);
+            foreach (var movie in movies)
+            {
+                writer.WriteLine(movie.Name);
+                Console.WriteLine(movie.Name);
+            }
+
+            writer.Flush();
+            writer.Close();
+        }
+
         /// <summary>
         /// Get parameters for reading the movie files and execute it.
         /// </summary>
-        public static void MenuReadMoviesRecursive()
+        public static void ReadMoviesSequence()
         {
-            DirectoryInfo directory;
+            var directory = GetPathInteractive();
+            var drive = directory.Root;
+            var driveId = IdentifyDirectoryInteractive(drive);
+
+            ReadMovies(directory);
+        }
+
+        private static string IdentifyDirectoryInteractive(DirectoryInfo directory)
+        {
+            string result = null;
+
+            do
+            {
+                Console.Write("Please Enter a name, as identifier for this directory: ");
+                var name = Console.ReadLine();
+
+                if (name != string.Empty)
+                {
+                    result = name;
+                }
+                else
+                {
+                    Console.WriteLine("An empty identifier is invalid");
+                }
+
+            }
+            while (result == null);
+
+            return result;
+        }
+
+        private static string IdentifyDirectory(DirectoryInfo directory)
+        {
+            var result = directory.Name;
+
+            var configFilePath = Path.Combine(directory.FullName, "MovieListConfiguration.xml");
+            var configFile = new FileInfo(configFilePath);
+
+            if (!configFile.Exists)
+            {
+                var identifier = IdentifyDirectoryInteractive(directory);
+                var document =
+                    new XElement(
+                        "MovieList",
+                        new XElement(
+                            "DirectoryConfiguration",
+                            new XElement(
+                                "Id",
+                                identifier
+                            )
+                        )
+                    );
+                var writeStream = configFile.OpenWrite();
+                document.WriteTo(XmlWriter.Create(writeStream));
+
+                writeStream.Flush();
+                writeStream.Close();
+
+                result = identifier;
+            }
+            else
+            {
+                var configDocument = XDocument.Load(configFile.OpenRead());
+                result = configDocument.Element("MovieList").Element("DirectoryConfiguration").Element("Id").Value;
+            }
+
+            return result;
+        }
+
+        public static DirectoryInfo GetPathInteractive()
+        {
+            DirectoryInfo directory = default(DirectoryInfo);
             while (true)
             {
                 Console.Write("Path: ");
@@ -107,7 +199,7 @@ namespace Movielist
                 break;
             }
 
-            ReadMovies(directory);
+            return directory;
         }
 
         /// <summary>
@@ -125,14 +217,26 @@ namespace Movielist
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Error reading directory " + subdir.FullName + ": " + ex.Message);
+                    //Console.WriteLine("Error reading directory " + subdir.FullName + ": " + ex.Message);
                 }
             }
 
             var files = directory.EnumerateFiles().Where(f => IsMovieFile(f));
             foreach (var file in files)
             {
-                Console.WriteLine(file.FullName);
+                if (!movieList.Contains(file.FullName))
+                {
+                    if (file.Name.Contains('[') && file.Name.Contains(']'))
+                    {
+                        movieList.Add(file.FullName);
+                    }
+
+                    //Console.WriteLine("Added: " + file.FullName);
+                }
+                else
+                {
+                    //Console.WriteLine("Existing: " + file.FullName);
+                }
             }
         }
 
