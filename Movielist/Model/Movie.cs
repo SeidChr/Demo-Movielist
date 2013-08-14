@@ -12,5 +12,6 @@ namespace Movielist.Model
         public string Name { get; set; }
         public IEnumerable<string> Tags { get; set; }
         public string Location { get; set; }
+        public long Size { get; set; }
     }
 }

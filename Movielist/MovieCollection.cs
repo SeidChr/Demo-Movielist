@@ -21,6 +21,7 @@ namespace Movielist
             var match = Regex.Match(file.Name, @"^(?<name>.*?)\s*\[(?<tag>[^,]*)(,\s?(?<tag>[^,]*))*\]\.\w+$");
             movie.Name = match.Groups["name"].Value;
             movie.Tags = match.Groups["tag"].Captures.Cast<Capture>().Select(c => c.Value).ToList();
+            movie.Size = file.Length;
 
             // remove directory char and use location prefix instead
             string key = location + file.FullName.Substring(1);
