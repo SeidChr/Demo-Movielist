@@ -80,17 +80,15 @@ namespace Movielist
         {
             var movies = movieList.Select(moviePath => new FileInfo(moviePath)).OrderBy(movieFile => movieFile.Name);
 
-            var listFile = new FileInfo(@"c:\movielist.txt");
-            var listFileStream = listFile.OpenWrite();
-            var writer = new StreamWriter(listFileStream);
-            foreach (var movie in movies)
+            var listFile = new FileInfo(@"movielist.txt");
+            using (var writer = listFile.CreateText())
             {
-                writer.WriteLine(movie.Name);
-                Console.WriteLine(movie.Name);
+                foreach (var movie in movies)
+                {
+                    writer.WriteLine(movie.Name);
+                    Console.WriteLine(movie.Name);
+                }
             }
-
-            writer.Flush();
-            writer.Close();
         }
 
         /// <summary>
@@ -100,7 +98,7 @@ namespace Movielist
         {
             var directory = GetPathInteractive();
             var drive = directory.Root;
-            var driveId = IdentifyDirectoryInteractive(drive);
+            var driveId = IdentifyDirectory(drive);
 
             ReadMovies(directory);
         }
@@ -150,11 +148,11 @@ namespace Movielist
                             )
                         )
                     );
-                var writeStream = configFile.OpenWrite();
-                document.WriteTo(XmlWriter.Create(writeStream));
 
-                writeStream.Flush();
-                writeStream.Close();
+                using (var writer = configFile.CreateText())
+                {
+                    document.WriteTo(XmlWriter.Create(writer));
+                }
 
                 result = identifier;
             }
